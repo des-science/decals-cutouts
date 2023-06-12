@@ -17,7 +17,7 @@ from PIL import Image
 from astropy.io import fits
 
 DATABSE = "https://github.com/des-science/decals-cutouts/releases/download/v0.1/database_v0.fits"
-QUERY = 'select ra, dec from y6a2_coadd_object_summary where coadd_object_id = {objid};'
+QUERY = 'select ra, dec from {table}_coadd_object_summary where coadd_object_id = {objid};'
 URL_QUERY = "ra={ra}&dec={dec}&zoom={zoom}&layer={release}"
 VIEWER_URL = "https://www.legacysurvey.org/viewer?{query}"
 CUTOUT_URL = "http://legacysurvey.org/viewer/cutout.jpg?{query}"
@@ -35,13 +35,29 @@ if __name__ == "__main__":
                         help='output verbosity')
     parser.add_argument('-z','--zoom',default=12,type=int,
                         help='zoom level')
+    parser.add_argument('-t','--table',help='table for easyaccess')
     args = parser.parse_args()
 
     if args.database == 'dessci':
         # Query the DESDM database
         import easyaccess as ea
         conn = ea.connect(section='dessci')
-        query = QUERY.format(objid=args.objid)
+        if args.table is None:
+            table = 'y6a2'
+        else:
+            table = args.table
+        query = QUERY.format(table=table,objid=args.objid)
+        if args.verbose: print(f"Querying DESDM database:\n{query}")
+        df = conn.query_to_pandas(query)
+        ra,dec = df['RA'].values[0], df['DEC'].values[0]
+    elif args.database == 'delve':
+        import easyaccess as ea
+        conn = ea.connect(section='delve')
+        if args.table is None:
+            table = 'dr3_1_1'
+        else:
+            table = args.table
+        query = QUERY.format(table=table,objid = args.objid)
         if args.verbose: print(f"Querying DESDM database:\n{query}")
         df = conn.query_to_pandas(query)
         ra,dec = df['RA'].values[0], df['DEC'].values[0]
