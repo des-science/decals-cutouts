@@ -15,9 +15,14 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from astropy.io import fits
+try:
+    import easyaccess as ea
+except ImportError as e:
+    print(e.msg)
+    pass
 
 DATABSE = "https://github.com/des-science/decals-cutouts/releases/download/v0.1/database_v0.fits"
-QUERY = 'select ra, dec from {table}_coadd_object_summary where coadd_object_id = {objid};'
+QUERY = 'select ra, dec from {table} where coadd_object_id = {objid};'
 URL_QUERY = "ra={ra}&dec={dec}&zoom={zoom}&layer={release}"
 VIEWER_URL = "https://www.legacysurvey.org/viewer?{query}"
 CUTOUT_URL = "http://legacysurvey.org/viewer/cutout.jpg?{query}"
@@ -36,14 +41,14 @@ if __name__ == "__main__":
     parser.add_argument('-z','--zoom',default=12,type=int,
                         help='zoom level')
     parser.add_argument('-t','--table',help='table for easyaccess')
+    parser.add_argument('-p','--pic', action='store_true',help='output temp image file')
     args = parser.parse_args()
 
     if args.database == 'dessci':
         # Query the DESDM database
-        import easyaccess as ea
         conn = ea.connect(section='dessci')
         if args.table is None:
-            table = 'y6a2'
+            table = 'y6a2_coadd_object_summary'
         else:
             table = args.table
         query = QUERY.format(table=table,objid=args.objid)
@@ -51,10 +56,9 @@ if __name__ == "__main__":
         df = conn.query_to_pandas(query)
         ra,dec = df['RA'].values[0], df['DEC'].values[0]
     elif args.database == 'delve':
-        import easyaccess as ea
         conn = ea.connect(section='delve')
         if args.table is None:
-            table = 'dr3_1_1'
+            table = 'dr3_1_1_coadd_object_summary'
         else:
             table = args.table
         query = QUERY.format(table=table,objid = args.objid)
@@ -92,5 +96,6 @@ if __name__ == "__main__":
         except HTTPError as e:
             content = e.read()
             print(content)
-        image = Image.open(fig_name.name)
-        image.show()
+        if args.pic:
+            image = Image.open(fig_name.name)
+            image.show()
