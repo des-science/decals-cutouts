@@ -36,4 +36,5 @@ options:
   -v, --verbose         output verbosity
   -z ZOOM, --zoom ZOOM  zoom level
   -t, --table TABLE     specify which table to use in easyaccess
+  -p, --pic PICTURE     output cutout image
 ```
