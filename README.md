@@ -20,7 +20,7 @@ The first time the tool is run it will download a catalog database file to the c
 Full usage options can be found from the help string.
 ```
 > ./decals-cutout.py -h
-usage: decals-cutout.py [-h] [-d DATABASE] [-r RELEASE] [-v] [-z ZOOM] objid
+usage: decals-cutout.py [-t TABLE] [-h] [-d DATABASE] [-r RELEASE] [-v] [-z ZOOM] objid
 
 Create cutout and url for DES Y6 coadd object using the DECaLS viewer.
 
@@ -35,4 +35,6 @@ options:
                         DECaLS viewer release layer
   -v, --verbose         output verbosity
   -z ZOOM, --zoom ZOOM  zoom level
+  -t, --table TABLE     specify which table to use in easyaccess
+  -p, --pic PICTURE     output cutout image
 ```
